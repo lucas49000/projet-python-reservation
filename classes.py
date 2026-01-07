@@ -1,9 +1,6 @@
-#Projet 2 phyton
-
 from datetime import date
 
-
-#  Vehicules 
+# Classes Véhicules 
 class Vehicule:
     def __init__(self, id, marque, modele, categorie, tarif):
         self.id = id
@@ -15,25 +12,22 @@ class Vehicule:
 
     def __str__(self):
         etat = "Disponible" if self.disponible else "Loué"
-        return f"{self.categorie} {self.marque} {self.modele} - {etat}"
+        return f"[{self.categorie}] {self.marque} {self.modele} - {etat} ({self.tarif}€/j)"
 
-
-class voiture(Vehicule):
+class Voiture(Vehicule):
     def __init__(self, id, marque, modele, tarif):
         super().__init__(id, marque, modele, "Voiture", tarif)
-
 
 class Camion(Vehicule):
     def __init__(self, id, marque, modele, tarif):
         super().__init__(id, marque, modele, "Camion", tarif)
-
 
 class Moto(Vehicule):
     def __init__(self, id, marque, modele, tarif):
         super().__init__(id, marque, modele, "Moto", tarif)
 
 
-# client
+# Classe Clien
 class Client:
     def __init__(self, id, nom, prenom, age, permis):
         self.id = id
@@ -44,30 +38,33 @@ class Client:
         self.historique = []
 
     def __str__(self):
-        return f"{self.prenom} {self.nom} ({self.age} ans)"
+        return f"Client: {self.prenom} {self.nom} ({self.age} ans)"
 
 
-# Location
-class location:
-    def __init__(self, customer, vehicle, début_date, fin_date):
+# Classe Location 
+class Location:
+    def __init__(self, customer, vehicle, debut_date, fin_date):
         self.customer = customer
         self.vehicle = vehicle
-        self.début_date = début_date
+        self.debut_date = debut_date
         self.fin_date = fin_date
         self.total_cost = self.calculate_cost()
 
     def calculate_cost(self):
-        nb_jours = (self.fin_date - self.début_date).days
+        # Calcule la différence en jours
+        delta = self.fin_date - self.debut_date
+        nb_jours = delta.days
+        if nb_jours < 1: nb_jours = 1 # Minimum 1 jour facturé
         return nb_jours * self.vehicle.tarif
 
     def __str__(self):
-        return (f"Location de {self.vehicle} par {self.customer} "
-                f"du {self.début_date} au {self.fin_date} "
-                f"= {self.total_cost}€")
+        return (f"Location: {self.vehicle.marque} {self.vehicle.modele} "
+                f"pour {self.customer.prenom} "
+                f"(Total: {self.total_cost}€)")
 
 
-# système de location
-class systeme_location_voiture:
+#  Système de Gestion
+class SystemeLocationVoiture:
     def __init__(self):
         self.vehicules = []
         self.customers = []
@@ -81,50 +78,29 @@ class systeme_location_voiture:
 
     def rent_vehicle(self, customer, vehicule, start_date, end_date):
         if not vehicule.disponible:
-            print("Véhicule indisponible")
+            print(f"Erreur: Le véhicule {vehicule.marque} est déjà loué.")
             return
 
         if start_date >= end_date:
-            print("Dates invalides")
+            print("Erreur: Les dates sont invalides.")
             return
 
-        rental = location(customer, vehicule, start_date, end_date)
+        # Création de la location
+        rental = Location(customer, vehicule, start_date, end_date)
         self.rentals.append(rental)
         customer.historique.append(rental)
+        
+        # Mise à jour de la disponibilité
         vehicule.disponible = False
 
-        print("Location enregistrée")
+        print("--> Location enregistrée avec succès !")
         print(rental)
 
     def available_vehicles(self):
-        return [v for v in self.vehicles if v.disponible]
+        # Retourne la liste des véhicules où disponible est True
+        return [v for v in self.vehicules if v.disponible]
 
     def revenue(self):
+        # Somme des coûts de toutes les locations
         return sum(r.total_cost for r in self.rentals)
 
-
-# test du système
-if __name__ == "__main__":
-    system = systeme_location_voiture()
-
-    voiture1 = voiture(1, "Peugeot", "208", 40)
-    moto1 = Moto(2, "Yamaha", "MT-07", 30)
-
-    client1 = Client(1, "Raimbaut", "Lucas", 18, True)
-
-    system.add_vehicle(voiture1)
-    system.add_vehicle(moto1)
-    system.add_customer(client1)
-
-    system.rent_vehicle(
-        client1,
-        car1,
-        date(2025, 12, 1),
-        date(2025, 12, 5)
-    )
-
-    print("\nVéhicules disponibles :")
-    for v in system.available_vehicles():
-        print(v)
-
-    print("\nChiffre d'affaires :", system.revenue(), "€")
