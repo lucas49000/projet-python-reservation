@@ -9,7 +9,7 @@ def init_db():
 
     # Table véhicules
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS vehicle (
+    CREATE TABLE IF NOT EXISTS vehicule (
         id INTEGER PRIMARY KEY,
         marque TEXT,
         modele TEXT,
@@ -21,7 +21,7 @@ def init_db():
 
     # Table clients
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS customer (
+    CREATE TABLE IF NOT EXISTS client (
         id INTEGER PRIMARY KEY,
         nom TEXT,
         prenom TEXT,
@@ -32,7 +32,7 @@ def init_db():
 
     # Table locations
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS rental (
+    CREATE TABLE IF NOT EXISTS locations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         customer_id INTEGER,
         vehicle_id INTEGER,

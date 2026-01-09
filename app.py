@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- GESTION DE LA BASE DE DONNÉES ---
+#  Gestion de la base de données 
 DB_FILE = "car_rental.db"
 
 def get_connection():
@@ -61,7 +61,7 @@ def init_db():
 # Initialisation au lancement
 init_db()
 
-# --- FONCTIONS UTILITAIRES ---
+#  Fonctions utilitaires pour récupérer les données 
 
 def get_vehicles(only_available=False):
     conn = get_connection()
@@ -99,7 +99,7 @@ def get_rentals():
     conn.close()
     return df
 
-# --- INTERFACE STREAMLIT ---
+#  Interface Utilisateur Streamlit 
 
 # Barre latérale de navigation
 st.sidebar.title("🚗 Navigation")
@@ -108,7 +108,7 @@ page = st.sidebar.radio("Aller vers", ["Tableau de bord", "Véhicules", "Clients
 st.sidebar.markdown("---")
 st.sidebar.info("Système de gestion v1.0")
 
-# --- PAGE: TABLEAU DE BORD ---
+# Tableau de bord
 if page == "Tableau de bord":
     st.title("📊 Tableau de Bord")
     
@@ -133,7 +133,7 @@ if page == "Tableau de bord":
         category_counts = df_v['categorie'].value_counts()
         st.bar_chart(category_counts)
 
-# --- PAGE: VÉHICULES ---
+# Véhicules
 elif page == "Véhicules":
     st.title("🚙 Gestion de la Flotte")
     
@@ -178,7 +178,7 @@ elif page == "Véhicules":
                 finally:
                     conn.close()
 
-# --- PAGE: CLIENTS ---
+# Clients
 elif page == "Clients":
     st.title("👤 Gestion des Clients")
     
@@ -220,13 +220,13 @@ elif page == "Clients":
                     finally:
                         conn.close()
 
-# --- PAGE: NOUVELLE LOCATION ---
+# Nouvelle Location
 elif page == "Nouvelle Location":
     st.title("🔑 Créer une Location")
     
     # Récupération des données pour les listes déroulantes
     conn = get_connection()
-    clients = pd.read_sql("SELECT id, nom, prenom FROM customer", conn)
+    clients = pd.read_sql("SELECT id, nom, prenom, permis FROM client", conn)
     # Seuls les véhicules disponibles
     vehicules = pd.read_sql("SELECT id, marque, modele, tarif FROM vehicle WHERE disponible = 1", conn)
     conn.close()
@@ -248,7 +248,7 @@ elif page == "Nouvelle Location":
             start_d = col3.date_input("Date de début", min_value=date.today())
             end_d = col4.date_input("Date de fin", min_value=date.today())
             
-            # Calcul prévisionnel
+            # Calcul préliminaire du coût
             selected_vehicule_id, tarif_journalier = vehicule_options[selected_vehicule_label]
             selected_client_id = client_options[selected_client_label]
             
@@ -261,6 +261,15 @@ elif page == "Nouvelle Location":
             submit_rental = st.form_submit_button("Valider la Location")
             
             if submit_rental:
+                
+                # On récupère les infos du client sélectionné
+                client_info = clients[clients['id'] == selected_client_id].iloc[0]
+                
+                # Si permis == 0, bloquer la location
+                if client_info['permis'] == 0:
+                    st.error(f" INTERDIT : {client_info['prenom']} {client_info['nom']} n'a pas de permis valide !")
+                    st.stop() # Arrête le script ici
+               
                 if start_d > end_d:
                     st.error("La date de fin doit être après la date de début.")
                 else:
@@ -283,7 +292,7 @@ elif page == "Nouvelle Location":
                     finally:
                         conn.close()
 
-# --- PAGE: HISTORIQUE ---
+# Historique Locations
 elif page == "Historique Locations":
     st.title("📜 Historique et Retours")
     
