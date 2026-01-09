@@ -226,7 +226,7 @@ elif page == "Nouvelle Location":
     
     # Récupération des données pour les listes déroulantes
     conn = get_connection()
-    clients = pd.read_sql("SELECT id, nom, prenom, permis FROM client", conn)
+    clients = pd.read_sql("SELECT id, nom, prenom, permis FROM customer", conn)
     # Seuls les véhicules disponibles
     vehicules = pd.read_sql("SELECT id, marque, modele, tarif FROM vehicle WHERE disponible = 1", conn)
     conn.close()
