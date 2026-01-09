@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""
-Migration / réparation simple de database/car_rental.db pour correspondre aux classes modifiées.
 
-Usage:
-    python3 migrate_db.py path/to/car_rental.db
-"""
 import sqlite3
 import sys
 import shutil
